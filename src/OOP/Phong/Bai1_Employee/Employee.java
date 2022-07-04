@@ -65,11 +65,10 @@ public class Employee {
 
     @Override
     public String toString() {
-        return "Employee{" +
-                "id=" + id +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", salary=" + salary +
-                '}';
+        return "Employee : " +  firstName + lastName;
+    }
+
+    public String showInfoEmployee() {
+        return "Employee : " +  firstName + lastName;
     }
 }

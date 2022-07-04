@@ -11,4 +11,6 @@ public class Main {
 
         Employee employee1 = new Employee(1, "AC", "sdfgh",12345);
         employee1.getFirstName();
+        System.out.println(employee1.toString());
+
 }}
