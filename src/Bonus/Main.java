@@ -11,30 +11,195 @@ import java.util.*;
 
 public class Main {
     private static List<SinhVien> sinhViens = new ArrayList<>();
+    private static Scanner scanner = new Scanner(System.in);
+    private static SinhVien searchSV =  new SinhVien();
 
     public static void main(String[] args) throws BiffException, IOException {
         loadData(sinhViens);
 //        showDanhSachSV(sinhViens);
-        sapXepSVTheoTen(sinhViens);
+//        sapXepSVTheoTen(sinhViens);
 //        showDanhSachSV(sinhViens);
 //        sapXepSVTheoNamSinh(sinhViens);
 //        sapXepSVTheoHocLuc(sinhViens);
 //        showDanhSachSV(sinhViens);
-        editNameSV(sinhViens);
-        showDanhSachSV(sinhViens);
+//        editNameSV(sinhViens);
+//        showDanhSachSV(sinhViens);
+        manager();
+    }
 
+    private static void manager() {
+        switch (showMenu()){
+            case 1:
+                addSV();
+                manager();
+                break;
+            case 2:
+                searchSV();
+                manager();
+                break;
+            case 0:
+                break;
+        }
+    }
+
+
+    private static int showMenu() {
+        int number;
+        do {
+            System.out.println("========== QUẢN LÝ SINH VIÊN ========");
+            System.out.println("1 . Thêm sinh viên");
+            System.out.println("2 . Tìm kiếm sinh viên");
+            System.out.println("0 . Thoát");
+            System.out.println("========== Chọn : ");
+            number = scanner.nextInt();
+        } while (number != 1 && number != 2 && number != 0);
+        return number;
+    }
+
+    private static int showMenuSearch() {
+        int number;
+        do {
+            System.out.println("1 . Tìm kiếm theo tên");
+            System.out.println("2 . Tìm kiếm theo mã sv");
+            number = scanner.nextInt();
+        } while (number != 1 && number != 2);
+        return number;
+    }
+
+    public static void searchSV() {
+        String search;
+        System.out.println("========== TÌM KIẾM SINH VIÊN ========");
+        boolean flag = false;
+        switch (showMenuSearch()) {
+            case 1:
+                System.out.println("Nhập tên sinh viên muốn tìm kiếm : ");
+                search = scanner.nextLine();
+                System.out.println("Kết quả tìm kiếm : ");
+                for (SinhVien s : sinhViens) {
+                    if (s.getTen().contains(search)) {
+                        flag = true;
+                        s.showInformation();
+                        searchSV = s;
+                        break;
+                    }
+                }
+                break;
+            case 2:
+                System.out.println("Nhập mã sinh viên muốn tìm kiếm : ");
+                search = scanner.nextLine();
+                System.out.println("Kết quả tìm kiếm : ");
+                for (SinhVien s : sinhViens) {
+                    if (s.getMaSV().contains(search)) {
+                        flag = true;
+                        s.showInformation();
+                        searchSV = s;
+                        break;
+                    }
+                }
+                break;
+        }
+        if (!flag) {
+            System.out.println("SV không tồn tại!");
+        } else {
+            switch (showMenuEditAndDeleteSV()){
+                case 1:
+                    editSV();
+                    break;
+                case 2:
+                    deleteSV();
+                    break;
+            }
+        }
+    }
+
+    private static void deleteSV() {
+        for (SinhVien sinhVien : sinhViens) {
+            if (sinhVien.equals(searchSV)) {
+                sinhViens.remove(sinhVien);
+                System.out.println("Đã xóa thành công sinh viên !");
+                searchSV = null;
+            }
+        }
+    }
+
+    private static void editSV() {
+        if (searchSV == null) {
+            System.out.println("Sinh viên này không tồn tại !");
+        } else {
+            searchSV.showInformation();
+            switch (showMenuEdit()) {
+                case 1:
+                    System.out.println("Nhập tên mới : ");
+                    String newName = scanner.nextLine();
+                    searchSV.setTen(newName);
+                    break;
+                case 2:
+                    System.out.println("Nhập họ mới : ");
+                    String ss = scanner.nextLine();
+                    searchSV.setHo(ss);
+                    break;
+            }
+            searchSV.showInformation();
+        }
+    }
+
+    private static int showMenuEdit() {
+        int number;
+        do {
+            System.out.println("1 . Chỉnh sửa tên sv");
+            System.out.println("2 . Chỉnh sửa họ sv");
+            number = scanner.nextInt();
+        } while (number != 1 && number != 2);
+        return number;
+    }
+
+    private static int showMenuEditAndDeleteSV() {
+        int number;
+        do {
+            System.out.println("1 . Chỉnh sửa thông tin sv");
+            System.out.println("2 . Xóa sv");
+            number = scanner.nextInt();
+        } while (number != 1 && number != 2);
+        return number;
+    }
+
+    public static void addSV() {
+        SinhVien sinhVien = new SinhVien();
+        System.out.println("========== THÊM SINH VIÊN ========");
+        sinhVien.setMaSV(randomMaSV());
+        System.out.println("Nhập họ SV : ");
+        String ho = scanner.nextLine();
+        sinhVien.setHo(ho);
+        System.out.println("Nhập tên SV : ");
+        sinhVien.setTen(scanner.nextLine());
+        System.out.println("Nhập sinh nhật SV : ");
+        sinhVien.setSinhNhat(scanner.nextLine());
+        System.out.println("Nhập khóa SV : ");
+        sinhVien.setKhoa(scanner.nextLine());
+        System.out.println("Nhập xếp loại SV : ");
+        sinhVien.setXepLoai(scanner.nextLine());
+        System.out.println("Nhập ngành học của SV : ");
+        sinhVien.setNganh(scanner.nextLine());
+        sinhViens.add(sinhVien);
+        System.out.println("SV mới là : ");
+        sinhVien.showInformation();
+    }
+
+    private static String randomMaSV() {
+        sinhViens.sort((sv1, sv2) -> sv1.getMaSV().compareTo(sv2.getMaSV()));
+        return String.valueOf(Double.parseDouble(sinhViens.get(sinhViens.size() - 1).getMaSV()) + 1);
     }
 
 
     private static void editNameSV(List<SinhVien> sinhViens) {
-        String[] plusNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N"};
+        String[] plusNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "O", "P", "Q", "X", "Y", "Z"};
         for (int i = 0; i < sinhViens.size(); i++) {
             int flag = 0;
             String name = sinhViens.get(i).getTen();
-            for (int j = i+1; j < sinhViens.size(); j++) {
+            for (int j = i + 1; j < sinhViens.size(); j++) {
                 if (name.equals(sinhViens.get(j).getTen())) {
-                    sinhViens.get(j).setTen(sinhViens.get(j).getTen() + " " + plusNames[flag+1]);
-                    flag ++;
+                    sinhViens.get(j).setTen(sinhViens.get(j).getTen() + " " + plusNames[flag + 1]);
+                    flag++;
                 }
             }
             if (flag > 0) {
