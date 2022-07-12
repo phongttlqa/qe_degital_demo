@@ -304,7 +304,7 @@ public class Main {
     private static void loadData(List<SinhVien> sinhViens) throws IOException, BiffException {
         WorkbookSettings ws = new WorkbookSettings();
         ws.setEncoding("Cp1252"); // setting dòng này để không bị lỗi font
-        Workbook workbook = Workbook.getWorkbook(new File("C:/Users/phongtt5/IdeaProjects/Buoi1/src/Bonus/data.xls"), ws);
+        Workbook workbook = Workbook.getWorkbook(new File("src/Bonus/data.xls"), ws);
         Sheet sheet = workbook.getSheet(0);
         for (int row = 1; row < 151; row++) {
             SinhVien sinhVien = new SinhVien();
