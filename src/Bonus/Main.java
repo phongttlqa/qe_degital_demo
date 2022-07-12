@@ -5,14 +5,14 @@ import jxl.read.biff.BiffException;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Main {
+    private static final int SEARCH_BY_NAME = 1;
+    private static final int SEARCH_BY_MASV = 0;
     private static List<SinhVien> sinhViens = new ArrayList<>();
     private static Scanner scanner = new Scanner(System.in);
-    private static SinhVien searchSV =  new SinhVien();
+    private static SinhVien searchSV = new SinhVien();
 
     public static void main(String[] args) throws BiffException, IOException {
         loadData(sinhViens);
@@ -28,7 +28,7 @@ public class Main {
     }
 
     private static void manager() {
-        switch (showMenu()){
+        switch (showMenu()) {
             case 1:
                 addSV();
                 manager();
@@ -67,12 +67,14 @@ public class Main {
     }
 
     public static void searchSV() {
-        String search;
+        String search = "";
         System.out.println("========== TÌM KIẾM SINH VIÊN ========");
         boolean flag = false;
+        int typeSearch = SEARCH_BY_NAME;
         switch (showMenuSearch()) {
             case 1:
                 System.out.println("Nhập tên sinh viên muốn tìm kiếm : ");
+                scanner.nextLine();
                 search = scanner.nextLine();
                 System.out.println("Kết quả tìm kiếm : ");
                 for (SinhVien s : sinhViens) {
@@ -85,7 +87,9 @@ public class Main {
                 }
                 break;
             case 2:
+                typeSearch = SEARCH_BY_MASV;
                 System.out.println("Nhập mã sinh viên muốn tìm kiếm : ");
+                scanner.nextLine();
                 search = scanner.nextLine();
                 System.out.println("Kết quả tìm kiếm : ");
                 for (SinhVien s : sinhViens) {
@@ -100,13 +104,17 @@ public class Main {
         }
         if (!flag) {
             System.out.println("SV không tồn tại!");
+            suggestSearch(search, typeSearch);
         } else {
-            switch (showMenuEditAndDeleteSV()){
+            switch (showMenuEditAndDeleteSV()) {
                 case 1:
                     editSV();
                     break;
                 case 2:
                     deleteSV();
+                    break;
+                case 3:
+                    manager();
                     break;
             }
         }
@@ -114,10 +122,11 @@ public class Main {
 
     private static void deleteSV() {
         for (SinhVien sinhVien : sinhViens) {
-            if (sinhVien.equals(searchSV)) {
+            if (sinhVien.getMaSV().equals(searchSV.getMaSV())) {
                 sinhViens.remove(sinhVien);
                 System.out.println("Đã xóa thành công sinh viên !");
                 searchSV = null;
+                break;
             }
         }
     }
@@ -130,11 +139,13 @@ public class Main {
             switch (showMenuEdit()) {
                 case 1:
                     System.out.println("Nhập tên mới : ");
+                    scanner.nextLine();
                     String newName = scanner.nextLine();
                     searchSV.setTen(newName);
                     break;
                 case 2:
                     System.out.println("Nhập họ mới : ");
+                    scanner.nextLine();
                     String ss = scanner.nextLine();
                     searchSV.setHo(ss);
                     break;
@@ -158,29 +169,32 @@ public class Main {
         do {
             System.out.println("1 . Chỉnh sửa thông tin sv");
             System.out.println("2 . Xóa sv");
+            System.out.println("3 . Quay trở lại menu quản lý sinh viên");
             number = scanner.nextInt();
-        } while (number != 1 && number != 2);
+        } while (number != 1 && number != 2 && number != 3);
         return number;
+    }
+
+    public static String inputString(String s) {
+        System.out.print(s);
+        return scanner.nextLine();
     }
 
     public static void addSV() {
         SinhVien sinhVien = new SinhVien();
         System.out.println("========== THÊM SINH VIÊN ========");
+        //
         sinhVien.setMaSV(randomMaSV());
-        System.out.println("Nhập họ SV : ");
-        String ho = scanner.nextLine();
-        sinhVien.setHo(ho);
-        System.out.println("Nhập tên SV : ");
-        sinhVien.setTen(scanner.nextLine());
-        System.out.println("Nhập sinh nhật SV : ");
-        sinhVien.setSinhNhat(scanner.nextLine());
-        System.out.println("Nhập khóa SV : ");
-        sinhVien.setKhoa(scanner.nextLine());
-        System.out.println("Nhập xếp loại SV : ");
-        sinhVien.setXepLoai(scanner.nextLine());
-        System.out.println("Nhập ngành học của SV : ");
-        sinhVien.setNganh(scanner.nextLine());
+        scanner.nextLine();
+        sinhVien.setHo(inputString("Họ : "));
+        sinhVien.setTen(inputString("Tên : "));
+        sinhVien.setSinhNhat(inputString("Sinh nhật : "));
+        sinhVien.setKhoa(inputString("Khoa : "));
+        sinhVien.setXepLoai(inputString("Xếp loại : "));
+        sinhVien.setNganh(inputString("Ngành : "));
+        //
         sinhViens.add(sinhVien);
+        //
         System.out.println("SV mới là : ");
         sinhVien.showInformation();
     }
@@ -313,5 +327,43 @@ public class Main {
         workbook.close();
         String[] ss = sinhViens.get(149).getSinhNhat().split("/");
         System.out.println(sinhViens.size() + sinhViens.get(149).getSinhNhat() + ss[1]);
+    }
+
+    public static int getTailMASV(String maSV) {
+        return Integer.parseInt(maSV.substring(maSV.length() - 3));
+    }
+
+    public static void suggestSearch(String search, int type) {
+        List<SinhVien> listSuggest = new ArrayList<>();
+        if (type == SEARCH_BY_MASV) {
+            for (SinhVien sinhVien : sinhViens) {
+                int num = getTailMASV(sinhVien.getMaSV()) - getTailMASV(search);
+                if (-5 < num && num < 5) {
+                    listSuggest.add(sinhVien);
+                }
+            }
+        } else {
+            String s1 = search.substring(0, search.length() - 1);
+            for (SinhVien sinhVien : sinhViens) {
+                if (sinhVien.getTen().equals(s1)) {
+                    listSuggest.add(sinhVien);
+                }
+            }
+            if (listSuggest.size() == 0) {
+                String s2 = search.substring(0, search.length() - 2);
+                for (SinhVien sinhVien : sinhViens) {
+                    if (sinhVien.getTen().equals(s2)) {
+                        listSuggest.add(sinhVien);
+                    }
+                }
+            }
+        }
+        if (listSuggest.size() > 0) {
+            System.out.println("Danh sach sinh viên gần giống : ");
+            for (SinhVien sinhVien :
+                    listSuggest) {
+                sinhVien.showInformation();
+            }
+        }
     }
 }
